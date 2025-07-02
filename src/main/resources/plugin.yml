@@ -1,0 +1,6 @@
+name: zVeinMiner
+authors: [ Maxlego08 ]
+main: fr.maxlego08.veinminer.VeinMinerPlugin
+description: Mine the whole vine on mining a single block
+version: ${version}
+api-version: 1.20
