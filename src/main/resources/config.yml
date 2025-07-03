@@ -1,0 +1,13 @@
+presets:
+  - name: "pickaxe-1"
+    size: 8
+    tags:
+      - COAL_ORES
+      - COPPER_ORES
+      - DIAMOND_ORES
+      - EMERALD_ORES
+      - GOLD_ORES
+      - IRON_ORES
+      - LAPIS_ORES
+      - REDSTONE_ORES
+      - NETHERITE_SCRAP

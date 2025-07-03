@@ -1,8 +1,11 @@
 package fr.maxlego08.veinminer;
 
+import fr.maxlego08.veinminer.api.Config;
+import fr.maxlego08.veinminer.api.VeinKeys;
 import fr.maxlego08.veinminer.api.VeinManager;
+import fr.maxlego08.veinminer.api.VeinPreset;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,7 +13,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,17 +30,17 @@ import java.util.function.Consumer;
 public class ZVeinManager implements VeinManager {
 
     private final VeinMinerPlugin plugin;
-    private final NamespacedKey veinKey;
+    private final VeinKeys veinKeys;
     private final Map<Player, VeinVisualizer> visualizers = new HashMap<>();
 
     public ZVeinManager(VeinMinerPlugin plugin) {
         this.plugin = plugin;
-        this.veinKey = new NamespacedKey(plugin, "vein-miner");
+        this.veinKeys = new ZVeinKeys(plugin);
     }
 
     @Override
-    public NamespacedKey getVeinKey() {
-        return this.veinKey;
+    public VeinKeys getVeinKeys() {
+        return this.veinKeys;
     }
 
     @Override
@@ -72,6 +78,21 @@ public class ZVeinManager implements VeinManager {
         return veinBlocks;
     }
 
+    @Override
+    public void applyPreset(ItemStack itemStack, VeinPreset veinPreset) {
+
+        var meta = itemStack.getItemMeta();
+        var pdc = meta.getPersistentDataContainer();
+        pdc.set(this.veinKeys.getPresetKey(), PersistentDataType.STRING, veinPreset.getName());
+        itemStack.setItemMeta(meta);
+
+    }
+
+    @Override
+    public Optional<VeinPreset> getVeinPreset(String name) {
+        return Optional.ofNullable(Config.veinPresets.get(name));
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
 
@@ -91,10 +112,11 @@ public class ZVeinManager implements VeinManager {
 
         player.setMetadata("vein-miner-cooldown", new FixedMetadataValue(plugin, true));
 
-        for (Block targetBlock : blocks) {
-            targetBlock.breakNaturally(itemStack);
+        for (Block targetBlock : blocks) targetBlock.breakNaturally(itemStack);
+
+        if (player.getGameMode() != GameMode.CREATIVE) {
+            itemStack.damage(blocks.size(), player);
         }
-        itemStack.damage(blocks.size(), player);
 
         player.removeMetadata("vein-miner-cooldown", plugin);
     }
