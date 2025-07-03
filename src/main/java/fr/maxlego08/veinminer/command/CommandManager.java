@@ -151,7 +151,7 @@ public class CommandManager extends ZUtils implements CommandExecutor, TabComple
         this.commands.forEach(command -> {
             if (command.sameSubCommands()) {
                 plugin.getLogger().info(command + " command to an argument similar to its parent command !");
-                this.plugin.getPluginLoader().disablePlugin(this.plugin);
+                this.plugin.getServer().getPluginManager().disablePlugin(this.plugin);
             }
         });
     }
@@ -204,13 +204,12 @@ public class CommandManager extends ZUtils implements CommandExecutor, TabComple
     }
 
     /**
-     * Register spigot command without plugin.yml This method will allow to
-     * register a command in the spigot without using the plugin.yml This saves
-     * time and understanding, the plugin.yml file is clearer
+     * Registers a command.
      *
-     * @param string   - Main command
-     * @param vCommand - Command object
-     * @param aliases  - Command aliases
+     * @param plugin   the plugin instance.
+     * @param string   the name of the command.
+     * @param vCommand the command to register.
+     * @param aliases  the list of aliases for the command.
      */
     public void registerCommand(Plugin plugin, String string, VCommand vCommand, List<String> aliases) {
         try {
@@ -222,7 +221,8 @@ public class CommandManager extends ZUtils implements CommandExecutor, TabComple
             commands.add(vCommand.addSubCommand(string));
             vCommand.addSubCommand(aliases);
 
-            if (!commandMap.register(command.getName(), plugin.getDescription().getName(), command)) {
+            String description = plugin.getPluginMeta().getDescription();
+            if (!commandMap.register(command.getName(), description == null ? "no description" : description, command)) {
                 plugin.getLogger().info("Unable to add the command " + vCommand.getSyntax());
             }
         } catch (Exception exception) {

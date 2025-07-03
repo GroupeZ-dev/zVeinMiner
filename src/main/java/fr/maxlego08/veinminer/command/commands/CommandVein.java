@@ -13,6 +13,7 @@ public class CommandVein extends VCommand {
         this.setPermission(Permission.ZVEINMINER_USE);
         this.addSubCommand(new CommandVeinReload(plugin));
         this.addSubCommand(new CommandVeinApply(plugin));
+        this.addSubCommand(new CommandVeinSize(plugin));
     }
 
     @Override

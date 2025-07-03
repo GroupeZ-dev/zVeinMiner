@@ -17,6 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * The main class of the zVeinMiner plugin. This class is responsible for registering
+ * commands and event listeners, and for loading the configuration file.
+ *
+ * @author Maxlego08
+ */
 public class VeinMinerPlugin extends JavaPlugin {
 
     private final CommandManager commandManager = new CommandManager(this);
@@ -39,11 +45,11 @@ public class VeinMinerPlugin extends JavaPlugin {
         this.loadConfiguration(this.getConfig());
     }
 
-    @Override
-    public void onDisable() {
-        super.onDisable();
-    }
-
+    /**
+     * Returns the CommandManager object that handles all command-related logic.
+     *
+     * @return the CommandManager object
+     */
     public CommandManager getCommandManager() {
         return commandManager;
     }

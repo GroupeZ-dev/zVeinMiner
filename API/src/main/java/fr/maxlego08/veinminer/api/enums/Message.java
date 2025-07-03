@@ -4,6 +4,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Enum that contains all the messages of the plugin.
+ *
+ * @author Maxlego08
+ */
 public enum Message {
 
     PREFIX("&8(&6zVeinMiner&8) "),
@@ -18,10 +23,16 @@ public enum Message {
 
     DESCRIPTION_RELOAD("Reload configuration files"),
     DESCRIPTION_APPLY("Apply a vein preset to an item"),
+    DESCRIPTION_SIZE("Change vein size for an item"),
 
     PRESET_NOT_FOUND("&cThe vein preset &f%name% &cwas not found."),
     PRESET_CANNOT_BE_APPLIED("&cYou cannot apply the vein preset &f%name% &cto this item."),
-    PRESET_APPLY("&aYou have just applied the vein preset &f%name% &ato the item."),;
+    PRESET_APPLY("&aYou have just applied the vein preset &f%name% &ato the item."),
+
+    SIZE_CANNOT_BE_CHANGED("&cYou cannot apply a vein size to this item."),
+    SIZE_CHANGE("&aYou have just applied the vein size &f%size% &ato the item."),
+    SIZE_DISPLAY("&aThe vein size of the item is &f%size%."),
+    SIZE_INVALID("&cInvalid vein size."),;
 
     private List<String> messages;
     private String message;
