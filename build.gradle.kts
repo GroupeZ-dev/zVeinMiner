@@ -26,7 +26,10 @@ allprojects {
         mavenLocal()
         mavenCentral()
 
-        maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+        maven {
+            name = "papermc"
+            url = uri("https://repo.papermc.io/repository/maven-public/")
+        }
     }
 
     java {
@@ -52,7 +55,7 @@ allprojects {
     }
 
     dependencies {
-        compileOnly("org.spigotmc:spigot-api:1.21.5-R0.1-SNAPSHOT")
+        compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
 
     }
 }

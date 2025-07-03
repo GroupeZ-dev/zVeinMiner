@@ -4,20 +4,28 @@ import fr.maxlego08.veinminer.api.VeinManager;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class ZVeinManager implements VeinManager {
 
     private final VeinMinerPlugin plugin;
     private final NamespacedKey veinKey;
+    private final Map<Player, VeinVisualizer> visualizers = new HashMap<>();
 
     public ZVeinManager(VeinMinerPlugin plugin) {
         this.plugin = plugin;
@@ -68,21 +76,64 @@ public class ZVeinManager implements VeinManager {
     public void onBlockBreak(BlockBreakEvent event) {
 
         var player = event.getPlayer();
-        System.out.println("-> " + player.hasMetadata("vein-miner-cooldown"));
         if (player.hasMetadata("vein-miner-cooldown")) return;
 
         var block = event.getBlock();
         var itemStack = player.getInventory().getItemInMainHand();
+        if (itemStack.getType().isAir()) return;
 
         var blocks = this.getVeinBlocks(block, 100);
         if (blocks.isEmpty()) return;
+
+        onVisualize(player, VeinVisualizer::remove);
+
+        blocks.remove(block);
 
         player.setMetadata("vein-miner-cooldown", new FixedMetadataValue(plugin, true));
 
         for (Block targetBlock : blocks) {
             targetBlock.breakNaturally(itemStack);
         }
+        itemStack.damage(blocks.size(), player);
 
         player.removeMetadata("vein-miner-cooldown", plugin);
+    }
+
+    private void onVisualize(Player player, Consumer<VeinVisualizer> veinVisualizerConsumer) {
+        Optional.ofNullable(this.visualizers.get(player)).ifPresent(veinVisualizerConsumer);
+    }
+
+    private VeinVisualizer getVisualizer(Player player) {
+        return this.visualizers.computeIfAbsent(player, k -> new VeinVisualizer(this.plugin, player));
+    }
+
+    @EventHandler
+    public void onSneak(PlayerToggleSneakEvent event) {
+
+        var player = event.getPlayer();
+        var isSneaking = event.isSneaking();
+
+        var block = player.getTargetBlock(null, 10);
+        if (block.getType().isAir()) return;
+
+        if (isSneaking) {
+            var blocks = this.getVeinBlocks(block, 100);
+            if (blocks.isEmpty()) return;
+
+            var veinVisualizer = this.getVisualizer(player);
+            veinVisualizer.spawn(blocks);
+
+        } else {
+
+            onVisualize(player, VeinVisualizer::remove);
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+
+        var player = event.getPlayer();
+        onVisualize(player, VeinVisualizer::remove);
+        this.visualizers.remove(player);
     }
 }
