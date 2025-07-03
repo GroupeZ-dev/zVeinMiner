@@ -6,12 +6,13 @@ import fr.maxlego08.veinminer.api.enums.Permission;
 import fr.maxlego08.veinminer.command.VCommand;
 import fr.maxlego08.veinminer.utils.commands.CommandType;
 
-public class CommandTemplate extends VCommand {
+public class CommandVein extends VCommand {
 
-    public CommandTemplate(VeinMinerPlugin plugin) {
+    public CommandVein(VeinMinerPlugin plugin) {
         super(plugin);
         this.setPermission(Permission.ZVEINMINER_USE);
-        this.addSubCommand(new CommandTemplateReload(plugin));
+        this.addSubCommand(new CommandVeinReload(plugin));
+        this.addSubCommand(new CommandVeinApply(plugin));
     }
 
     @Override

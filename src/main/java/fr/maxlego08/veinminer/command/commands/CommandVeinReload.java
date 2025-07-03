@@ -6,9 +6,9 @@ import fr.maxlego08.veinminer.api.enums.Permission;
 import fr.maxlego08.veinminer.command.VCommand;
 import fr.maxlego08.veinminer.utils.commands.CommandType;
 
-public class CommandTemplateReload extends VCommand {
+public class CommandVeinReload extends VCommand {
 
-	public CommandTemplateReload(VeinMinerPlugin plugin) {
+	public CommandVeinReload(VeinMinerPlugin plugin) {
 		super(plugin);
 		this.setPermission(Permission.ZVEINMINER_RELOAD);
 		this.addSubCommand("reload", "rl");

@@ -4,7 +4,7 @@ import fr.maxlego08.veinminer.api.Config;
 import fr.maxlego08.veinminer.api.Taggable;
 import fr.maxlego08.veinminer.api.VeinManager;
 import fr.maxlego08.veinminer.command.CommandManager;
-import fr.maxlego08.veinminer.command.commands.CommandTemplate;
+import fr.maxlego08.veinminer.command.commands.CommandVein;
 import fr.maxlego08.veinminer.tags.MaterialTaggable;
 import fr.maxlego08.veinminer.tags.TagTaggable;
 import fr.maxlego08.veinminer.utils.TagRegistry;
@@ -28,7 +28,7 @@ public class VeinMinerPlugin extends JavaPlugin {
 
         this.saveDefaultConfig();
 
-        this.commandManager.registerCommand(this, "zveinminer", new CommandTemplate(this), List.of("veinminer", "zvm"));
+        this.commandManager.registerCommand(this, "zveinminer", new CommandVein(this), List.of("veinminer", "zvm"));
 
         this.veinManager = new ZVeinManager(this);
 

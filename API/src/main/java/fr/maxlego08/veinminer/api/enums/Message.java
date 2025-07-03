@@ -17,8 +17,11 @@ public enum Message {
     RELOAD("&aYou have just reloaded the configuration files."),
 
     DESCRIPTION_RELOAD("Reload configuration files"),
+    DESCRIPTION_APPLY("Apply a vein preset to an item"),
 
-    ;
+    PRESET_NOT_FOUND("&cThe vein preset &f%name% &cwas not found."),
+    PRESET_CANNOT_BE_APPLIED("&cYou cannot apply the vein preset &f%name% &cto this item."),
+    PRESET_APPLY("&aYou have just applied the vein preset &f%name% &ato the item."),;
 
     private List<String> messages;
     private String message;

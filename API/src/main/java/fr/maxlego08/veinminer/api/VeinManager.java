@@ -17,4 +17,6 @@ public interface VeinManager extends Listener {
 
     Optional<VeinPreset> getVeinPreset(String name);
 
+    Optional<ItemVeinMinerResult> getVeinMinerResult(ItemStack itemStack);
+
 }

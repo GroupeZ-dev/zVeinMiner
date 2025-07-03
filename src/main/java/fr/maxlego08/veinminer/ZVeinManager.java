@@ -1,6 +1,8 @@
 package fr.maxlego08.veinminer;
 
 import fr.maxlego08.veinminer.api.Config;
+import fr.maxlego08.veinminer.api.ItemVeinMinerResult;
+import fr.maxlego08.veinminer.api.Taggable;
 import fr.maxlego08.veinminer.api.VeinKeys;
 import fr.maxlego08.veinminer.api.VeinManager;
 import fr.maxlego08.veinminer.api.VeinPreset;
@@ -14,13 +16,13 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
@@ -93,6 +95,36 @@ public class ZVeinManager implements VeinManager {
         return Optional.ofNullable(Config.veinPresets.get(name));
     }
 
+    @Override
+    public Optional<ItemVeinMinerResult> getVeinMinerResult(ItemStack itemStack) {
+
+        // Create cache
+
+        if (!itemStack.hasItemMeta()) return Optional.empty();
+
+        var meta = itemStack.getItemMeta();
+        var pdc = meta.getPersistentDataContainer();
+        VeinPreset preset = null;
+        if (pdc.has(this.veinKeys.getPresetKey(), PersistentDataType.STRING)) {
+            var presetName = pdc.get(this.veinKeys.getPresetKey(), PersistentDataType.STRING);
+            preset = this.getVeinPreset(presetName).orElse(null);
+        }
+
+        int size = preset == null ? 0 : preset.getMaxVeinSize();
+        List<Taggable> taggables = preset == null ? List.of() : preset.getTags();
+
+        if (pdc.has(this.veinKeys.getSizeKey(), PersistentDataType.INTEGER)) {
+            size = pdc.getOrDefault(this.veinKeys.getSizeKey(), PersistentDataType.INTEGER, 0);
+        }
+
+        if (pdc.has(this.veinKeys.getTaggableKey(), PersistentDataType.STRING)) {
+            var taggableString = pdc.getOrDefault(this.veinKeys.getTaggableKey(), PersistentDataType.STRING, "");
+            // ToDo
+        }
+
+        return Optional.of(new ItemVeinMinerResult(size, taggables));
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
 
@@ -103,7 +135,15 @@ public class ZVeinManager implements VeinManager {
         var itemStack = player.getInventory().getItemInMainHand();
         if (itemStack.getType().isAir()) return;
 
-        var blocks = this.getVeinBlocks(block, 100);
+        var optional = this.getVeinMinerResult(itemStack);
+        if (optional.isEmpty()) return;
+
+        var veinMinerResult = optional.get();
+        if (veinMinerResult.size() == 0) return;
+
+        if (veinMinerResult.tags().stream().noneMatch(e -> e.isTagged(block))) return;
+
+        var blocks = this.getVeinBlocks(block, veinMinerResult.size());
         if (blocks.isEmpty()) return;
 
         onVisualize(player, VeinVisualizer::remove);
