@@ -16,4 +16,9 @@ public class MaterialTaggable implements Taggable {
     public boolean isTagged(Block block) {
         return block.getType() == this.material;
     }
+
+    @Override
+    public String asString() {
+        return this.material.name();
+    }
 }

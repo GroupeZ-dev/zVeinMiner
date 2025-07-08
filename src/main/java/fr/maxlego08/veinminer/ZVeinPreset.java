@@ -52,6 +52,11 @@ public class ZVeinPreset implements VeinPreset {
     }
 
     @Override
+    public String getTagsAsString() {
+        return this.tags.stream().map(Taggable::asString).reduce((a, b) -> a + "," + b).orElse("");
+    }
+
+    @Override
     public String toString() {
         return "ZVeinPreset{" + "name='" + name + '\'' + ", size=" + size + ", tags=" + tags + '}';
     }

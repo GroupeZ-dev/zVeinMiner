@@ -23,6 +23,7 @@ public enum Message {
 
     DESCRIPTION_RELOAD("Reload configuration files"),
     DESCRIPTION_APPLY("Apply a vein preset to an item"),
+    DESCRIPTION_SET("Set a vein preset to an item"),
     DESCRIPTION_SIZE("Change vein size for an item"),
 
     PRESET_NOT_FOUND("&cThe vein preset &f%name% &cwas not found."),

@@ -7,14 +7,21 @@ import org.bukkit.block.Block;
 
 public class TagTaggable implements Taggable {
 
+    private final String name;
     private final Tag<Material> tag;
 
-    public TagTaggable(Tag<Material> tag) {
+    public TagTaggable(String name, Tag<Material> tag) {
+        this.name = name;
         this.tag = tag;
     }
 
     @Override
     public boolean isTagged(Block block) {
         return this.tag.isTagged(block.getType());
+    }
+
+    @Override
+    public String asString() {
+        return this.name;
     }
 }

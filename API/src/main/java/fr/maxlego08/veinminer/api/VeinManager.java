@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -47,6 +48,15 @@ public interface VeinManager extends Listener {
      */
     void applyPreset(ItemStack itemStack, VeinPreset veinPreset);
 
+    /**
+     * Sets the given {@link VeinPreset} to the given {@link ItemStack}, regardless
+     * of whether the item stack already has a preset or not. This will overwrite
+     * any existing preset.
+     *
+     * @param itemStack  the item stack to set the preset on
+     * @param veinPreset the vein preset to set on the item stack
+     */
+    void setPreset(ItemStack itemStack, VeinPreset veinPreset);
 
     /**
      * Retrieves the {@link VeinPreset} associated with the given name.
@@ -56,6 +66,12 @@ public interface VeinManager extends Listener {
      */
     Optional<VeinPreset> getVeinPreset(String name);
 
+    /**
+     * Retrieves the {@link ItemVeinMinerResult} associated with the given {@link ItemStack}, if present.
+     *
+     * @param itemStack the item stack to retrieve the {@link ItemVeinMinerResult} from
+     * @return an {@link Optional} containing the {@link ItemVeinMinerResult} if present, or an empty {@link Optional} if not present
+     */
     Optional<ItemVeinMinerResult> getVeinMinerResult(ItemStack itemStack);
 
     /**
@@ -73,4 +89,6 @@ public interface VeinManager extends Listener {
      * @param size      the new size
      */
     void changeSize(ItemStack itemStack, int size);
+
+    List<Taggable> getTaggables(String string);
 }

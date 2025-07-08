@@ -1,6 +1,7 @@
 package fr.maxlego08.veinminer.api;
 
 import org.bukkit.block.Block;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -42,4 +43,11 @@ public interface VeinPreset {
      */
     boolean isTagged(Block block);
 
+    /**
+     * Retrieves the tags associated with this preset as a single concatenated string.
+     * Each tag is separated by a comma.
+     *
+     * @return a string representation of the tags associated with this preset
+     */
+    String getTagsAsString();
 }

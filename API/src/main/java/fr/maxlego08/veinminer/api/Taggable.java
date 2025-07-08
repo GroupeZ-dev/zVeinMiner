@@ -19,4 +19,11 @@ public interface Taggable {
      */
     boolean isTagged(Block block);
 
+    /**
+     * Converts this tag to a string representation that can be used to identify
+     * it in configuration files.
+     *
+     * @return the string representation of the tag
+     */
+    String asString();
 }

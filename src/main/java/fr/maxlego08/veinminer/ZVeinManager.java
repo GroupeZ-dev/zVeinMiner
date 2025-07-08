@@ -21,11 +21,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -92,6 +94,16 @@ public class ZVeinManager extends ZUtils implements VeinManager {
     }
 
     @Override
+    public void setPreset(ItemStack itemStack, VeinPreset veinPreset) {
+
+        var meta = itemStack.getItemMeta();
+        var pdc = meta.getPersistentDataContainer();
+        pdc.set(this.veinKeys.getSizeKey(), PersistentDataType.INTEGER, veinPreset.getMaxVeinSize());
+        pdc.set(this.veinKeys.getTaggableKey(), PersistentDataType.STRING, veinPreset.getTagsAsString());
+        itemStack.setItemMeta(meta);
+    }
+
+    @Override
     public Optional<VeinPreset> getVeinPreset(String name) {
         return Optional.ofNullable(Config.veinPresets.get(name));
     }
@@ -119,8 +131,7 @@ public class ZVeinManager extends ZUtils implements VeinManager {
         }
 
         if (pdc.has(this.veinKeys.getTaggableKey(), PersistentDataType.STRING)) {
-            var taggableString = pdc.getOrDefault(this.veinKeys.getTaggableKey(), PersistentDataType.STRING, "");
-            // ToDo
+            taggables = this.getTaggables(pdc.getOrDefault(this.veinKeys.getTaggableKey(), PersistentDataType.STRING, ""));
         }
 
         return Optional.of(new ItemVeinMinerResult(size, taggables));
@@ -143,6 +154,11 @@ public class ZVeinManager extends ZUtils implements VeinManager {
         else pdc.set(this.veinKeys.getSizeKey(), PersistentDataType.INTEGER, size);
 
         itemStack.setItemMeta(meta);
+    }
+
+    @Override
+    public List<Taggable> getTaggables(String string) {
+        return Arrays.stream(string.split(",")).map(this.plugin::toTag).filter(Objects::nonNull).toList();
     }
 
     /**

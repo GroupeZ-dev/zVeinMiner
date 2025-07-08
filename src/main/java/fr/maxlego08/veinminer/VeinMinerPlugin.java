@@ -106,9 +106,9 @@ public class VeinMinerPlugin extends JavaPlugin {
      * @param tag the string to convert
      * @return the Taggable, or null if an error occurs
      */
-    private Taggable toTag(String tag) {
+    public Taggable toTag(String tag) {
         var bukkitTag = TagRegistry.getTag(tag);
-        if (bukkitTag != null) return new TagTaggable(bukkitTag);
+        if (bukkitTag != null) return new TagTaggable(tag, bukkitTag);
 
         try {
             return new MaterialTaggable(Material.valueOf(tag));

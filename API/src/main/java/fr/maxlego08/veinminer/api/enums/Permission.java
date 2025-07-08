@@ -8,6 +8,7 @@ public enum Permission {
     ZVEINMINER_USE,
     ZVEINMINER_RELOAD,
     ZVEINMINER_APPLY,
+    ZVEINMINER_SET,
     ZVEINMINER_SIZE,
 
     ;
