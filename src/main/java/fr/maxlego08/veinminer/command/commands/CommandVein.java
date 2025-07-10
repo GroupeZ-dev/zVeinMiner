@@ -16,6 +16,7 @@ public class CommandVein extends VCommand {
         this.addSubCommand(new CommandVeinSize(plugin));
         this.addSubCommand(new CommandVeinSet(plugin));
         this.addSubCommand(new CommandVeinAdd(plugin));
+        this.addSubCommand(new CommandVeinRemove(plugin));
     }
 
     @Override

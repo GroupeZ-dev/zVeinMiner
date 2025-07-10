@@ -98,8 +98,6 @@ public class VeinMinerPlugin extends JavaPlugin {
             List<Taggable> tagsList = tags.stream().map(String::toUpperCase).map(this::toTag).filter(Objects::nonNull).toList();
             Config.veinPresets.put(name, new ZVeinPreset(name, size, tagsList));
         }
-
-        System.out.println(Config.veinPresets);
     }
 
     /**

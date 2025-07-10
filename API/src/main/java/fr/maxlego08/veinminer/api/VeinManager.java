@@ -104,4 +104,26 @@ public interface VeinManager extends Listener {
      * @return true if the tag was added successfully, false otherwise
      */
     boolean addTag(ItemStack itemStack, Taggable taggable);
+
+    /**
+     * Removes the given {@link Taggable} from the list of tags of the
+     * {@link ItemVeinMinerResult} associated with the given {@link ItemStack}.
+     * If the tag is not present, this method does nothing and returns false.
+     * If the tag is removed successfully, this method returns true.
+     *
+     * @param itemStack the item stack to remove the tag from
+     * @param taggable  the tag to remove
+     * @return true if the tag was removed successfully, false otherwise
+     */
+    boolean removeTag(ItemStack itemStack, Taggable taggable);
+
+    /**
+     * Retrieves a list of tag names associated with the item stack in the main hand
+     * of the specified player. This list represents the tags applied to the
+     * {@link ItemVeinMinerResult} of the item stack.
+     *
+     * @param playerSender the player whose main hand item stack's tags are to be retrieved
+     * @return a list of tag names associated with the item stack in the player's main hand
+     */
+    List<String> getTags(Player playerSender);
 }

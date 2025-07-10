@@ -165,7 +165,15 @@ public class ZVeinManager extends ZUtils implements VeinManager {
 
     @Override
     public boolean addTag(ItemStack itemStack, Taggable taggable) {
+        return updateTagList(itemStack, taggable, true);
+    }
 
+    @Override
+    public boolean removeTag(ItemStack itemStack, Taggable taggable) {
+        return updateTagList(itemStack, taggable, false);
+    }
+
+    private boolean updateTagList(ItemStack itemStack, Taggable taggable, boolean add) {
         if (!itemStack.hasItemMeta()) return false;
 
         var meta = itemStack.getItemMeta();
@@ -176,16 +184,32 @@ public class ZVeinManager extends ZUtils implements VeinManager {
             taggables = this.getTaggables(pdc.getOrDefault(this.veinKeys.getTaggableKey(), PersistentDataType.STRING, ""));
         }
 
-        if (taggables.contains(taggable)) return false;
+        boolean modified;
+        if (add) {
+            if (taggables.contains(taggable)) return false;
+            modified = taggables.add(taggable);
+        } else {
+            if (!taggables.contains(taggable)) return false;
+            modified = taggables.remove(taggable);
+        }
 
-
-        taggables.add(taggable);
+        if (!modified) return false;
 
         pdc.set(this.veinKeys.getTaggableKey(), PersistentDataType.STRING, taggables.stream().map(Taggable::asString).collect(Collectors.joining(",")));
 
         itemStack.setItemMeta(meta);
 
         return true;
+    }
+
+
+    @Override
+    public List<String> getTags(Player playerSender) {
+
+        var itemStack = playerSender.getInventory().getItemInMainHand();
+        if (itemStack.getType().isAir() || !itemStack.hasItemMeta()) return List.of();
+
+        return this.getVeinMinerResult(itemStack).map(e -> e.tags().stream().map(Taggable::asString).collect(Collectors.toList())).orElse(List.of());
     }
 
     /**

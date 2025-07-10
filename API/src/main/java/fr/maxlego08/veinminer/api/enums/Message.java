@@ -39,8 +39,13 @@ public enum Message {
 
     TAG_NOT_FOUND("&cThe tag &f%tag% &cwas not found."),
     TAG_CANNOT_BE_ADDED("&cYou cannot add the tag &f%name% &cto this item."),
+
     TAG_ADD("&aYou have just added the tag &f%tag% &ato the item."),
-    TAG_ADD_ERROR("&cThis item have already the tag &f%tag%."),;
+    TAG_ADD_ERROR("&cThis item have already the tag &f%tag%."),
+    TAG_REMOVE("&aYou have just removed the tag &f%tag% &ato the item."),
+    TAG_REMOVE_ERROR("&cThis item don't have the tag &f%tag%."),
+    ;
+
 
     private List<String> messages;
     private String message;
