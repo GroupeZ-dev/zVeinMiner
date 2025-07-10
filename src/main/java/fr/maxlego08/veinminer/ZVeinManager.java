@@ -21,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ZVeinManager extends ZUtils implements VeinManager {
 
@@ -158,7 +160,32 @@ public class ZVeinManager extends ZUtils implements VeinManager {
 
     @Override
     public List<Taggable> getTaggables(String string) {
-        return Arrays.stream(string.split(",")).map(this.plugin::toTag).filter(Objects::nonNull).toList();
+        return Arrays.stream(string.split(",")).map(this.plugin::toTag).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean addTag(ItemStack itemStack, Taggable taggable) {
+
+        if (!itemStack.hasItemMeta()) return false;
+
+        var meta = itemStack.getItemMeta();
+        var pdc = meta.getPersistentDataContainer();
+
+        List<Taggable> taggables = new ArrayList<>();
+        if (pdc.has(this.veinKeys.getTaggableKey(), PersistentDataType.STRING)) {
+            taggables = this.getTaggables(pdc.getOrDefault(this.veinKeys.getTaggableKey(), PersistentDataType.STRING, ""));
+        }
+
+        if (taggables.contains(taggable)) return false;
+
+
+        taggables.add(taggable);
+
+        pdc.set(this.veinKeys.getTaggableKey(), PersistentDataType.STRING, taggables.stream().map(Taggable::asString).collect(Collectors.joining(",")));
+
+        itemStack.setItemMeta(meta);
+
+        return true;
     }
 
     /**

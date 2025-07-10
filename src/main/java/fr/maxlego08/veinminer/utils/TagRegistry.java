@@ -6,6 +6,7 @@ import org.bukkit.Tag;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class TagRegistry {
 
@@ -32,5 +33,9 @@ public class TagRegistry {
 
     public static Tag<Material> getTag(String key) {
         return tagMap.get(key);
+    }
+
+    public static Set<String> getTags() {
+        return tagMap.keySet();
     }
 }

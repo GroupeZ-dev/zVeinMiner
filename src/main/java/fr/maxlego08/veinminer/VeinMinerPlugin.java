@@ -85,6 +85,9 @@ public class VeinMinerPlugin extends JavaPlugin {
      */
     private void loadConfiguration(FileConfiguration configuration) {
 
+        Config.enableDebug = configuration.getBoolean("enable-debug");
+        Config.enableDebugTime = configuration.getBoolean("enable-debug-time");
+
         Config.veinPresets.clear();
 
         var presets = configuration.getMapList("presets");

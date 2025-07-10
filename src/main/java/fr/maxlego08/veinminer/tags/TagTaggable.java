@@ -24,4 +24,12 @@ public class TagTaggable implements Taggable {
     public String asString() {
         return this.name;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof TagTaggable tagTaggable) {
+            return tagTaggable.name.equals(this.name) && tagTaggable.tag.equals(this.tag);
+        }
+        return obj instanceof String && obj.equals(this.asString());
+    }
 }

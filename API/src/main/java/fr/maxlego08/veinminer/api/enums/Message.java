@@ -24,6 +24,8 @@ public enum Message {
     DESCRIPTION_RELOAD("Reload configuration files"),
     DESCRIPTION_APPLY("Apply a vein preset to an item"),
     DESCRIPTION_SET("Set a vein preset to an item"),
+    DESCRIPTION_ADD("Add a taggable to an item"),
+    DESCRIPTION_REMOVE("Remove a taggable from an item"),
     DESCRIPTION_SIZE("Change vein size for an item"),
 
     PRESET_NOT_FOUND("&cThe vein preset &f%name% &cwas not found."),
@@ -33,7 +35,12 @@ public enum Message {
     SIZE_CANNOT_BE_CHANGED("&cYou cannot apply a vein size to this item."),
     SIZE_CHANGE("&aYou have just applied the vein size &f%size% &ato the item."),
     SIZE_DISPLAY("&aThe vein size of the item is &f%size%."),
-    SIZE_INVALID("&cInvalid vein size."),;
+    SIZE_INVALID("&cInvalid vein size."),
+
+    TAG_NOT_FOUND("&cThe tag &f%tag% &cwas not found."),
+    TAG_CANNOT_BE_ADDED("&cYou cannot add the tag &f%name% &cto this item."),
+    TAG_ADD("&aYou have just added the tag &f%tag% &ato the item."),
+    TAG_ADD_ERROR("&cThis item have already the tag &f%tag%."),;
 
     private List<String> messages;
     private String message;

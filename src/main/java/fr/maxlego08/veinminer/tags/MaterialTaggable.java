@@ -21,4 +21,12 @@ public class MaterialTaggable implements Taggable {
     public String asString() {
         return this.material.name();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof MaterialTaggable materialTaggable) {
+            return materialTaggable.material == this.material;
+        }
+        return obj instanceof String && obj.equals(this.asString());
+    }
 }

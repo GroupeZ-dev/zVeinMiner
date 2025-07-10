@@ -91,4 +91,17 @@ public interface VeinManager extends Listener {
     void changeSize(ItemStack itemStack, int size);
 
     List<Taggable> getTaggables(String string);
+
+
+    /**
+     * Adds the given {@link Taggable} to the list of tags of the
+     * {@link ItemVeinMinerResult} associated with the given {@link ItemStack}.
+     * If the tag is already present, this method does nothing and returns false.
+     * If the tag is added successfully, this method returns true.
+     *
+     * @param itemStack the item stack to add the tag to
+     * @param taggable  the tag to add
+     * @return true if the tag was added successfully, false otherwise
+     */
+    boolean addTag(ItemStack itemStack, Taggable taggable);
 }
