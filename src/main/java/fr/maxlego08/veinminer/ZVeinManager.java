@@ -7,7 +7,15 @@ import fr.maxlego08.veinminer.api.VeinKeys;
 import fr.maxlego08.veinminer.api.VeinManager;
 import fr.maxlego08.veinminer.api.VeinPreset;
 import fr.maxlego08.veinminer.api.enums.Message;
+import fr.maxlego08.veinminer.api.events.VeinMineBlockEvent;
+import fr.maxlego08.veinminer.api.events.VeinMineCompleteEvent;
+import fr.maxlego08.veinminer.api.events.VeinMineStartEvent;
+import fr.maxlego08.veinminer.debug.DebugLogger;
+import fr.maxlego08.veinminer.hooks.HookManager;
+import fr.maxlego08.veinminer.hooks.VaultHook;
+import fr.maxlego08.veinminer.utils.ItemUtils;
 import fr.maxlego08.veinminer.utils.ZUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -39,11 +47,33 @@ public class ZVeinManager extends ZUtils implements VeinManager {
 
     private final VeinMinerPlugin plugin;
     private final VeinKeys veinKeys;
+    private final HookManager hookManager;
+    private final VaultHook vaultHook;
     private final Map<Player, VeinVisualizer> visualizers = new HashMap<>();
 
     public ZVeinManager(VeinMinerPlugin plugin) {
         this.plugin = plugin;
         this.veinKeys = new ZVeinKeys(plugin);
+        this.hookManager = new HookManager(plugin);
+        this.vaultHook = new VaultHook(plugin);
+    }
+
+    /**
+     * Gets the HookManager instance.
+     *
+     * @return the HookManager
+     */
+    public HookManager getHookManager() {
+        return hookManager;
+    }
+
+    /**
+     * Gets the VaultHook instance.
+     *
+     * @return the VaultHook
+     */
+    public VaultHook getVaultHook() {
+        return vaultHook;
     }
 
     @Override
@@ -53,37 +83,40 @@ public class ZVeinManager extends ZUtils implements VeinManager {
 
     @Override
     public Set<Block> getVeinBlocks(Block startBlock, int maxVeinSize) {
-        Set<Block> veinBlocks = new HashSet<>();
-        Queue<Block> blocksToCheck = new LinkedList<>();
-        Material blockType = startBlock.getType();
+        return DebugLogger.debugTime("getVeinBlocks", () -> {
+            Set<Block> veinBlocks = new HashSet<>();
+            Queue<Block> blocksToCheck = new LinkedList<>();
+            Material blockType = startBlock.getType();
 
-        blocksToCheck.add(startBlock);
+            blocksToCheck.add(startBlock);
 
-        while (!blocksToCheck.isEmpty() && veinBlocks.size() < maxVeinSize) {
-            Block currentBlock = blocksToCheck.poll();
+            while (!blocksToCheck.isEmpty() && veinBlocks.size() < maxVeinSize) {
+                Block currentBlock = blocksToCheck.poll();
 
-            if (currentBlock.getType() != blockType || veinBlocks.contains(currentBlock)) {
-                continue;
-            }
+                if (currentBlock.getType() != blockType || veinBlocks.contains(currentBlock)) {
+                    continue;
+                }
 
-            veinBlocks.add(currentBlock);
+                veinBlocks.add(currentBlock);
 
-            for (int x = -1; x <= 1; x++) {
-                for (int y = -1; y <= 1; y++) {
-                    for (int z = -1; z <= 1; z++) {
-                        if (x == 0 && y == 0 && z == 0) continue;
+                for (int x = -1; x <= 1; x++) {
+                    for (int y = -1; y <= 1; y++) {
+                        for (int z = -1; z <= 1; z++) {
+                            if (x == 0 && y == 0 && z == 0) continue;
 
-                        Block adjacentBlock = currentBlock.getRelative(x, y, z);
+                            Block adjacentBlock = currentBlock.getRelative(x, y, z);
 
-                        if (!veinBlocks.contains(adjacentBlock)) {
-                            blocksToCheck.add(adjacentBlock);
+                            if (!veinBlocks.contains(adjacentBlock)) {
+                                blocksToCheck.add(adjacentBlock);
+                            }
                         }
                     }
                 }
             }
-        }
 
-        return veinBlocks;
+            DebugLogger.debug("Found vein with {} blocks of type {}", veinBlocks.size(), blockType);
+            return veinBlocks;
+        });
     }
 
     @Override
@@ -235,6 +268,17 @@ public class ZVeinManager extends ZUtils implements VeinManager {
     }
 
     /**
+     * Checks if vein mining is allowed in the specified world.
+     *
+     * @param worldName the world name to check
+     * @return true if vein mining is allowed
+     */
+    private boolean isWorldAllowed(String worldName) {
+        boolean inList = Config.worldBlacklist.contains(worldName);
+        return Config.worldWhitelistMode ? inList : !inList;
+    }
+
+    /**
      * Validates if the vein mining action can be performed with the given player and block.
      *
      * @param player the player attempting the vein mine
@@ -242,6 +286,22 @@ public class ZVeinManager extends ZUtils implements VeinManager {
      * @return Optional containing the VeinMinerResult if validation passes, empty otherwise
      */
     private Optional<ItemVeinMinerResult> validateVeinMine(Player player, Block block) {
+        // Check if player has vein mining enabled
+        var playerManager = this.plugin.getPlayerManager();
+        if (playerManager != null && !playerManager.isEnabled(player)) {
+            return Optional.empty();
+        }
+
+        // Check if world is allowed
+        if (!isWorldAllowed(block.getWorld().getName())) {
+            return Optional.empty();
+        }
+
+        // Check if sneak is required
+        if (Config.requireSneak && !player.isSneaking()) {
+            return Optional.empty();
+        }
+
         var itemStack = player.getInventory().getItemInMainHand();
         if (itemStack.getType().isAir()) return Optional.empty();
 
@@ -282,13 +342,69 @@ public class ZVeinManager extends ZUtils implements VeinManager {
 
         blocks.remove(block);
 
+        // Filter blocks by protection hooks
+        Set<Block> allowedBlocks = blocks.stream()
+                .filter(b -> hookManager.canBreak(player, b))
+                .collect(Collectors.toSet());
+
+        if (allowedBlocks.isEmpty()) return;
+
+        // Fire VeinMineStartEvent
+        VeinMineStartEvent startEvent = new VeinMineStartEvent(player, block, allowedBlocks, itemStack);
+        Bukkit.getPluginManager().callEvent(startEvent);
+        if (startEvent.isCancelled()) return;
+
+        // Check economy cost
+        if (Config.economyEnabled && vaultHook.isAvailable()) {
+            double totalCost = Config.costPerVein + (Config.costPerBlock * allowedBlocks.size());
+            if (totalCost > 0 && !vaultHook.has(player, totalCost)) {
+                message(player, Message.ECONOMY_NOT_ENOUGH, "%amount%", vaultHook.format(totalCost));
+                return;
+            }
+            if (totalCost > 0) {
+                vaultHook.withdraw(player, totalCost);
+                message(player, Message.ECONOMY_CHARGED, "%amount%", vaultHook.format(totalCost));
+            }
+        }
+
+        // Limit blocks by durability if enabled
+        int maxBreakable = allowedBlocks.size();
+        if (player.getGameMode() != GameMode.CREATIVE && Config.checkDurability) {
+            maxBreakable = Math.min(maxBreakable, ItemUtils.getMaxBlocksBreakable(itemStack));
+        }
+
+        List<Block> blocksToBreak = allowedBlocks.stream().limit(maxBreakable).toList();
+
         player.setMetadata("vein-miner-cooldown", new FixedMetadataValue(plugin, true));
 
-        for (Block targetBlock : blocks) targetBlock.breakNaturally(itemStack);
+        // Break blocks with per-block events
+        List<Block> actuallyBroken = new ArrayList<>();
+        int index = 0;
+        for (Block targetBlock : blocksToBreak) {
+            VeinMineBlockEvent blockEvent = new VeinMineBlockEvent(player, targetBlock, block, itemStack, index, blocksToBreak.size());
+            Bukkit.getPluginManager().callEvent(blockEvent);
 
-        if (player.getGameMode() != GameMode.CREATIVE) {
-            itemStack.damage(blocks.size(), player);
+            if (!blockEvent.isCancelled()) {
+                targetBlock.breakNaturally(itemStack, true, true);
+                actuallyBroken.add(targetBlock);
+            }
+            index++;
         }
+
+        // Apply durability damage if enabled
+        if (player.getGameMode() != GameMode.CREATIVE && Config.applyDamage && !actuallyBroken.isEmpty()) {
+            itemStack.damage(actuallyBroken.size(), player);
+        }
+
+        // Update player statistics
+        var playerManager = this.plugin.getPlayerManager();
+        if (playerManager != null) {
+            playerManager.updateStats(player, actuallyBroken.size() + 1); // +1 for the original block
+        }
+
+        // Fire VeinMineCompleteEvent
+        VeinMineCompleteEvent completeEvent = new VeinMineCompleteEvent(player, block, new HashSet<>(actuallyBroken), itemStack, actuallyBroken.size() + 1);
+        Bukkit.getPluginManager().callEvent(completeEvent);
 
         player.removeMetadata("vein-miner-cooldown", plugin);
     }

@@ -1,10 +1,13 @@
 package fr.maxlego08.veinminer;
 
 import fr.maxlego08.veinminer.api.Config;
+import fr.maxlego08.veinminer.api.PlayerManager;
 import fr.maxlego08.veinminer.api.Taggable;
 import fr.maxlego08.veinminer.api.VeinManager;
 import fr.maxlego08.veinminer.command.CommandManager;
 import fr.maxlego08.veinminer.command.commands.CommandVein;
+import fr.maxlego08.veinminer.debug.DebugLogger;
+import fr.maxlego08.veinminer.message.MessageManager;
 import fr.maxlego08.veinminer.tags.MaterialTaggable;
 import fr.maxlego08.veinminer.tags.TagTaggable;
 import fr.maxlego08.veinminer.utils.TagRegistry;
@@ -27,6 +30,8 @@ public class VeinMinerPlugin extends JavaPlugin {
 
     private final CommandManager commandManager = new CommandManager(this);
     private VeinManager veinManager;
+    private ZPlayerManager playerManager;
+    private MessageManager messageManager;
 
     @Override
     public void onEnable() {
@@ -34,15 +39,38 @@ public class VeinMinerPlugin extends JavaPlugin {
 
         this.saveDefaultConfig();
 
+        // Initialize debug logger
+        DebugLogger.init(this);
+
+        // Load configuration
+        this.loadConfiguration(this.getConfig());
+
+        // Initialize message manager
+        this.messageManager = new MessageManager(this);
+        this.messageManager.loadMessages();
+
         this.commandManager.registerCommand(this, "zveinminer", new CommandVein(this), List.of("veinminer", "zvm"));
 
         this.veinManager = new ZVeinManager(this);
+        this.playerManager = new ZPlayerManager(this);
 
         var server = this.getServer();
-        server.getPluginManager().registerEvents(this.veinManager, this);
-        server.getServicesManager().register(VeinManager.class, this.veinManager, this, ServicePriority.Highest);
+        var pluginManager = server.getPluginManager();
 
-        this.loadConfiguration(this.getConfig());
+        pluginManager.registerEvents(this.veinManager, this);
+        pluginManager.registerEvents(this.playerManager, this);
+
+        server.getServicesManager().register(VeinManager.class, this.veinManager, this, ServicePriority.Highest);
+        server.getServicesManager().register(PlayerManager.class, this.playerManager, this, ServicePriority.Highest);
+
+        DebugLogger.debug("zVeinMiner enabled with {} presets", Config.veinPresets.size());
+    }
+
+    @Override
+    public void onDisable() {
+        if (this.playerManager != null) {
+            this.playerManager.saveAll();
+        }
     }
 
     /**
@@ -62,6 +90,9 @@ public class VeinMinerPlugin extends JavaPlugin {
     public void reloadFiles() {
         this.reloadConfig();
         this.loadConfiguration(this.getConfig());
+        if (this.messageManager != null) {
+            this.messageManager.reloadMessages();
+        }
         this.getLogger().info("Config reloaded");
     }
 
@@ -76,6 +107,15 @@ public class VeinMinerPlugin extends JavaPlugin {
     }
 
     /**
+     * Gets the PlayerManager object that handles player data and settings.
+     *
+     * @return The PlayerManager object.
+     */
+    public ZPlayerManager getPlayerManager() {
+        return playerManager;
+    }
+
+    /**
      * Loads the configuration for vein presets from the provided FileConfiguration.
      * Clears existing presets and populates them with new ones defined in the
      * configuration file. Each preset consists of a name, size, and a list of tags.
@@ -85,9 +125,33 @@ public class VeinMinerPlugin extends JavaPlugin {
      */
     private void loadConfiguration(FileConfiguration configuration) {
 
-        Config.enableDebug = configuration.getBoolean("enable-debug");
-        Config.enableDebugTime = configuration.getBoolean("enable-debug-time");
+        // Debug settings
+        Config.enableDebug = configuration.getBoolean("enable-debug", false);
+        Config.enableDebugTime = configuration.getBoolean("enable-debug-time", false);
 
+        // Vein mining settings
+        Config.cooldown = configuration.getInt("vein-mining.cooldown", 0);
+        Config.maxSizeLimit = configuration.getInt("vein-mining.max-size-limit", 64);
+        Config.requireSneak = configuration.getBoolean("vein-mining.require-sneak", false);
+
+        // World settings
+        Config.worldBlacklist = configuration.getStringList("worlds.blacklist");
+        Config.worldWhitelistMode = configuration.getBoolean("worlds.whitelist-mode", false);
+
+        // Drop settings
+        Config.teleportToPlayer = configuration.getBoolean("drops.teleport-to-player", false);
+        Config.autoPickup = configuration.getBoolean("drops.auto-pickup", false);
+
+        // Tool settings
+        Config.checkDurability = configuration.getBoolean("tools.check-durability", true);
+        Config.applyDamage = configuration.getBoolean("tools.apply-damage", true);
+
+        // Economy settings
+        Config.economyEnabled = configuration.getBoolean("economy.enabled", false);
+        Config.costPerBlock = configuration.getDouble("economy.cost-per-block", 0.0);
+        Config.costPerVein = configuration.getDouble("economy.cost-per-vein", 0.0);
+
+        // Load presets
         Config.veinPresets.clear();
 
         var presets = configuration.getMapList("presets");

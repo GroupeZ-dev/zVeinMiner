@@ -27,6 +27,11 @@ public enum Message {
     DESCRIPTION_ADD("Add a taggable to an item"),
     DESCRIPTION_REMOVE("Remove a taggable from an item"),
     DESCRIPTION_SIZE("Change vein size for an item"),
+    DESCRIPTION_TOGGLE("Toggle vein mining on/off"),
+    DESCRIPTION_LIST("List available presets"),
+    DESCRIPTION_INFO("Show info about the item in hand"),
+    DESCRIPTION_GIVE("Give an item with a preset"),
+    DESCRIPTION_STATS("Show your vein mining statistics"),
 
     PRESET_NOT_FOUND("&cThe vein preset &f%name% &cwas not found."),
     PRESET_CANNOT_BE_APPLIED("&cYou cannot apply the vein preset &f%name% &cto this item."),
@@ -44,6 +49,31 @@ public enum Message {
     TAG_ADD_ERROR("&cThis item have already the tag &f%tag%."),
     TAG_REMOVE("&aYou have just removed the tag &f%tag% &ato the item."),
     TAG_REMOVE_ERROR("&cThis item don't have the tag &f%tag%."),
+
+    TOGGLE_ENABLED("&aVein mining has been &2enabled&a."),
+    TOGGLE_DISABLED("&aVein mining has been &cdisabled&a."),
+
+    LIST_HEADER("&6Available presets:"),
+    LIST_ENTRY("&7- &f%name% &7(size: &e%size%&7, tags: &e%tags%&7)"),
+    LIST_EMPTY("&cNo presets available."),
+
+    INFO_HEADER("&6Item vein mining info:"),
+    INFO_SIZE("&7Vein size: &e%size%"),
+    INFO_TAGS("&7Tags: &e%tags%"),
+    INFO_PRESET("&7Preset: &e%preset%"),
+    INFO_NO_DATA("&cThis item has no vein mining data."),
+
+    GIVE_SUCCESS("&aGave &f%player% &aan item with preset &f%preset%&a."),
+    GIVE_PLAYER_NOT_FOUND("&cPlayer &f%player% &cnot found."),
+
+    STATS_HEADER("&6Your vein mining statistics:"),
+    STATS_BLOCKS_MINED("&7Total blocks mined: &e%blocks%"),
+    STATS_VEINS_MINED("&7Total veins mined: &e%veins%"),
+
+    ECONOMY_NOT_ENOUGH("&cYou don't have enough money. Required: &f%amount%"),
+    ECONOMY_CHARGED("&aYou have been charged &f%amount%&a."),
+
+    WORLD_DISABLED("&cVein mining is disabled in this world."),
     ;
 
 

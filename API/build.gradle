@@ -1,0 +1,19 @@
+plugins {
+    id 're.alwyn974.groupez.publish' version '1.0.0'
+}
+
+if (rootProject.ext.sha) {
+    version = rootProject.ext.sha
+}
+
+shadowJar {
+    destinationDirectory.set(rootProject.ext.apiFolder)
+}
+
+build {
+    dependsOn shadowJar
+}
+
+publishConfig {
+    githubOwner.set('GroupeZ-dev')
+}
