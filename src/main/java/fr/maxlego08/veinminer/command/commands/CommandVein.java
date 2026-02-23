@@ -1,0 +1,33 @@
+package fr.maxlego08.veinminer.command.commands;
+
+
+import fr.maxlego08.veinminer.VeinMinerPlugin;
+import fr.maxlego08.veinminer.api.enums.Permission;
+import fr.maxlego08.veinminer.command.VCommand;
+import fr.maxlego08.veinminer.utils.commands.CommandType;
+
+public class CommandVein extends VCommand {
+
+    public CommandVein(VeinMinerPlugin plugin) {
+        super(plugin);
+        this.setPermission(Permission.ZVEINMINER_USE);
+        this.addSubCommand(new CommandVeinReload(plugin));
+        this.addSubCommand(new CommandVeinApply(plugin));
+        this.addSubCommand(new CommandVeinSize(plugin));
+        this.addSubCommand(new CommandVeinSet(plugin));
+        this.addSubCommand(new CommandVeinAdd(plugin));
+        this.addSubCommand(new CommandVeinRemove(plugin));
+        this.addSubCommand(new CommandVeinToggle(plugin));
+        this.addSubCommand(new CommandVeinList(plugin));
+        this.addSubCommand(new CommandVeinInfo(plugin));
+        this.addSubCommand(new CommandVeinGive(plugin));
+        this.addSubCommand(new CommandVeinStats(plugin));
+    }
+
+    @Override
+    protected CommandType perform(VeinMinerPlugin plugin) {
+        syntaxMessage();
+        return CommandType.SUCCESS;
+    }
+
+}

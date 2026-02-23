@@ -1,0 +1,57 @@
+# Debug settings
+enable-debug: false
+enable-debug-time: false
+
+# Vein mining settings
+vein-mining:
+  # Cooldown between vein mines in ticks (0 = disabled)
+  cooldown: 0
+  # Maximum vein size limit (overrides preset if lower)
+  max-size-limit: 64
+  # Require player to sneak to activate vein mining
+  require-sneak: false
+
+# World settings
+worlds:
+  # List of worlds where vein mining is disabled (or enabled if whitelist-mode is true)
+  blacklist:
+    - world_the_end
+  # If true, the list above becomes a whitelist instead
+  whitelist-mode: false
+
+# Drop settings
+drops:
+  # Teleport drops to the player's location
+  teleport-to-player: false
+  # Automatically pick up drops into player's inventory
+  auto-pickup: false
+
+# Tool settings
+tools:
+  # Check tool durability before mining (prevents breaking more blocks than durability allows)
+  check-durability: true
+  # Apply durability damage to the tool
+  apply-damage: true
+
+# Economy settings (requires Vault)
+economy:
+  enabled: false
+  # Cost per block mined (0 = disabled)
+  cost-per-block: 0.0
+  # Cost per vein mine action (0 = disabled)
+  cost-per-vein: 0.0
+
+# Preset definitions
+presets:
+  - name: "pickaxe-1"
+    size: 8
+    tags:
+      - COAL_ORES
+      - COPPER_ORES
+      - DIAMOND_ORES
+      - EMERALD_ORES
+      - GOLD_ORES
+      - IRON_ORES
+      - LAPIS_ORES
+      - REDSTONE_ORES
+      - NETHERITE_SCRAP
